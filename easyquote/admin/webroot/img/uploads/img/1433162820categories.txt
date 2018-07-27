@@ -1,0 +1,113 @@
+Electrician --
+
+	<item>AC Installation</item>
+	<item>AC Service</item>
+	<item>Air Conditioning</item>
+	<item>Circuits and Wiring</item>
+	<item>Commercial Fitting</item>
+	<item>Elecrical Wiring</item>
+	<item>Electrical Equipment Installation</item>
+	<item>Electrical Fittings</item>
+	<item>Electrical Repairs</item>
+	<item>Electrician</item>
+	<item>Fall Ceiling Wiring</item>
+	<item>Fency Light Installation</item>
+	<item>Indoor lighting</item>
+	<item>LED Lighting</item>
+	<item>Main Electrical Panels</item>
+	<item>Motor Repairs</item>
+	<item>Outdoor lighting</item>	
+	<item>Home Appliances Repair</item>
+
+
+Painter --
+
+	<item>Banner Painting</item>
+	<item>Commercial Painter</item>
+	<item>Exterior Painting</item>
+	<item>Interior Painting</item>
+	<item>Oil Painting</item>
+	<item>Plastic Painting</item>
+	<item>Residential Painter</item>
+	<item>Roof Coating and Painting</item>
+	<item>Texture Painting</item>
+	<item>Wall Painting</item>
+	<item>White Wash</item>
+	<item>Wall Texture</item>
+	
+
+Plumber --
+
+	<item>Disposal Systems</item>
+	<item>Bath Fittings</item>
+	<item>Bath Tub installation</item>
+	<item>Leakage Repairs</item>
+	<item>Pipe blockage</item>
+	<item>Pipe Fitting</item>
+	<item>Plumber</item>
+	<item>Plumbing Contracters</item>
+	<item>Sanitary Fitting</item>
+	<item>Sewar and Drain Cleaning</item>
+	<item>Unclogging</item>
+	<item>Shower Installation</item>
+	<item>PVC Fittings</item>
+	<item>Interior Decorators</item>
+	<item>Interior Designers</item>
+
+
+Carpenter --
+
+	<item>Cane Furniture</item>
+	<item>Carpenter</item>
+	<item>Commercial Furniture</item>
+	<item>Cupboard</item>
+	<item>Custom Doors</item>
+	<item>Doors Repair</item>
+	<item>Furniture Repair</item>
+	<item>General Wood Repairwork</item>
+	<item>Office Furniture</item>
+	<item>Sofa repair</item>
+	<item>Window Repair</item>
+	<item>Wood Windows and Frames</item>
+	<item>Wood Work</item>
+	<item>Wooden Cabinet</item>
+	<item>Wood Polish</item>
+	<item>Wood varnish</item>
+	<item>Kitchen Cabinet</item>
+	<item>Home Improvement</item>
+	<item>Kitchen Remodeling</item>
+	<item>Modular Kitchen</item>
+
+Mason --
+
+
+	<item>Brick Work</item>
+	<item>Building Construction</item>	
+	<item>Mason Work</item>
+	<item>Plaster of Paris Work</item>
+	<item>Tile Work</item>
+	<item>Labour Contracters</item>
+	<item>Ceiling Slabs</item>
+	<item>Concrete work</item>
+	<item>Civil Contracters</item>
+	<item>Foundation work</item>
+	<item>House Repairs and Maintenance</item>
+	<item>Water proofing</item>
+
+
+unknown --
+
+
+
+
+<item>MultiControls</item> 
+
+
+
+
+
+
+
+
+
+

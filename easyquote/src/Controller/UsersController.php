@@ -1,0 +1,428 @@
+<?php
+namespace App\Controller;
+
+use App\Controller\AppController;
+use Cake\Network\Exception\ForbiddenException;
+use Cake\Event\Event;
+use Cake\Controller\Component\FlashComponent;
+
+
+
+/**
+ * Users Controller
+ *
+ * @property \App\Model\Table\UsersTable $Users
+ */
+class UsersController extends AppController
+{
+
+	 public function initialize()
+    {
+        parent::initialize();
+        $this->loadComponent('Flash');
+    }
+
+
+    /**
+     * Index method
+     *
+     * @return void
+     */
+    public function index()
+    {
+		$customer=$this->request->session()->read('type')=="customer";
+		$user=$this->request->session()->read('type')=="user";
+		if(!($customer || $user)){ 
+		
+			$this->set('users', $this->paginate($this->Users));
+			$this->set('_serialize', ['users']);
+		}else{
+			$user = $this->Users->get($this->request->session()->read('id'));
+			$this->set('users', $user);
+		}
+			
+    }
+
+    /**
+     * View method
+     *
+     * @param string|null $id User id.
+     * @return void
+     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     */
+    public function view($id = null)
+    {
+		
+		$user = $this->Users->get($id, [
+			'contain' => ['Hires', 'HourlyRates', 'Projects', 'WorkingHours']
+		]);
+		$this->set('user', $user);
+		$this->set('_serialize', ['user']);
+		
+    }
+	
+	
+	/**
+ * login method
+ *
+ * @return void
+ */
+	
+	
+	public function login() {
+		
+		if($this->request->session()->check('id')==0){
+			$this->layout=false;
+			
+			if ($this->request->is('post')) {
+			
+				$user = $this->Auth->identify();
+				if ($user) {
+					$this->Auth->setUser($user);
+					$session = $this->request->session();
+					$this->request->session()->renew('id');
+					$session->write('id', $user['id']);
+					$session->write('name', $user['name']);
+					$session->write('username', $user['username']);
+					$session->write('logo', $user['logo']);
+					$session->write('type', $user['type']);
+					return $this->redirect($this->Auth->redirectUrl());
+					
+				} else {
+					$this->Flash->error(
+					__('Username or password is incorrect'),
+					'default',
+					[],
+					'auth'
+					);
+				}
+			}
+		}else{
+			return $this->redirect(['action'=>'index']);
+		}
+	}
+
+    /**
+     * Add method
+     *
+     * @return void Redirects on successful add, renders view otherwise.
+     */
+    public function add()
+    {
+        $user = $this->Users->newEntity();
+        if ($this->request->is('post')) {
+		
+			/*if(!empty($this->request->data['logo']['name'])) {
+			
+				$file = $this->request->data['logo']; 
+				$ext = substr(strtolower(strrchr($file['name'], '.')), 1); 
+				$arr_ext = ['jpg', 'jpeg', 'gif']; 
+
+				if(in_array($ext, $arr_ext)) {
+					move_uploaded_file($file['tmp_name'], UPLOAD_IMAGE . $file['name']);
+					$this->request->data['logo'] = $file['name'];
+				}
+					
+			}*/
+            $user = $this->Users->patchEntity($user, $this->request->data);
+			
+            if ($this->Users->save($user)) {
+                $this->Flash->success('The user has been saved.');
+                return $this->redirect(['controller' => 'categories','action' => 'start_flow']);
+            } else {
+                $this->Flash->error('The user could not be saved. Please, try again.');
+            }
+        }
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
+    }
+	
+	
+	
+	
+	public function changepass(){
+	
+		
+		$this->layout = false;
+		if ($this->request->is('post')) {
+			$users = $this->Users->get($this->request->session()->read('id'), [
+				'contain' => []
+			]);
+			$pass = $this->request->data['data']['User']['oldpassword'];
+			$new = $this->request->data['data']['User']['password'];
+			if(!empty($users)){
+			
+				if($this->request->data['data']['User']['cpassword']==$this->request->data['data']['User']['oldpassword']){
+					$this->request->data['password']=$new;
+					$user = $this->Users->patchEntity($users, $this->request->data);
+					
+					
+					if ($this->Users->save($user)) {
+						$this->Flash->success('Password has been successfully updated.');
+						return $this->redirect(['action' => 'index']);
+					}
+				}else{
+					$this->Flash->success('Wrong Password. Please try again.');
+					return $this->redirect(['action' => 'index']);
+				}
+			}else{
+				$this->Flash->success('Wrong Password. Please try again.');
+				return $this->redirect(['action' => 'index']);
+			}
+		}
+		
+	}
+	
+
+    /**
+     * Edit method
+     *
+     * @param string|null $id User id.
+     * @return void Redirects on successful edit, renders view otherwise.
+     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     */
+    public function edit($id = null)
+    {
+		
+		$user = $this->Users->get($id, [
+			'contain' => []
+		]);
+		if ($this->request->is(['patch', 'post', 'put'])) {
+		
+			/*if(!empty($this->request->data['logo']['name'])) {
+		
+				$file = $this->request->data['logo']; 
+				$ext = substr(strtolower(strrchr($file['name'], '.')), 1); 
+				$arr_ext = ['jpg', 'jpeg', 'gif']; 
+
+				if(in_array($ext, $arr_ext)) {
+
+					move_uploaded_file($file['tmp_name'], UPLOAD_IMAGE . $file['name']);
+					$this->request->data['logo'] = $file['name'];
+				}
+					
+			}*/
+		
+			$user = $this->Users->patchEntity($user, $this->request->data);
+			if ($this->Users->save($user)) {
+				$this->Flash->success('The user has been saved.');
+				return $this->redirect(['action' => 'index']);
+			} else {
+				$this->Flash->error('The user could not be saved. Please, try again.');
+			}
+		}
+		$this->set(compact('user'));
+		$this->set('_serialize', ['user']);
+			
+    }
+
+    /**
+     * Delete method
+     *
+     * @param string|null $id User id.
+     * @return void Redirects to index.
+     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     */
+    public function delete($id = null)
+    {
+		$this->request->is(['post', 'delete']);
+		$user = $this->Users->get($id);
+		if ($this->Users->delete($user)) {
+			$this->Flash->success('The user has been deleted.');
+		} else {
+			$this->Flash->error('The user could not be deleted. Please, try again.');
+		}
+		return $this->redirect(['action' => 'index']);
+		
+    }
+	
+	/**
+     * forgot method
+     *
+     * @param string|null $id User id.
+     * @return void Redirects to index.
+     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     */
+	 
+	public function forgot(){
+	
+		$this->layout=false;
+		if ($this->request->is('post')) {
+		
+			$UserName=$this->request->data['data']['User']['Username'];
+			$tmp="welcome";
+			//$customer = $this->User->find('first',array('conditions'=>array('Customer.email'=>$UserName)));
+			$user = $this->Users->find()->where(['Users.username' =>$UserName])->contain([]);
+			if(!empty($user)){
+				$Name=$user['name'];
+				echo $Name;exit;
+				$this->request->data['User']['password'] = $tmp;
+				$this->request->data['User']['username'] = $UserName;
+				$this->request->data['User']['id'] = 	$user['User']['id'];
+				print_r($this->request->data);exit;
+				if($this->User->save($this->request->data)){
+				
+				/* send email start */
+				/*App::import('Vendor', 'PHPMailer', array ('file'=>'PHPMailer'.DS.'class.phpmailer.php'));
+				date_default_timezone_set('America/Toronto');
+				$mail             = new PHPMailer();
+				$body             = "Hello ".$Name." .<br/>You can Reset your Password by login thorogh this password ".$tmp." <br/>Thanks";
+				$mail->IsSMTP(); 
+				$mail->Host       = "stmp.gmail.com"; 
+				$mail->SMTPDebug  = 1;                     
+				$mail->SMTPAuth   = true;                 
+				$mail->SMTPSecure = "ssl";                
+				$mail->Host       = "smtp.gmail.com";     
+				$mail->Port       = 465;                   
+				$mail->Username   = EMAILUSER; 
+				$mail->Password   = EMAILPASS;           
+				$mail->SetFrom(EMAILUSER);
+				$mail->Subject    = 'DSX:MISCWORK - Password Changed';
+				$mail->AltBody    = ""; 
+				$mail->MsgHTML($body);
+				$mail->AddAddress($UserName);
+				$mail->Send();*/
+				
+				/* send email end */
+				echo $this->request->data['User']['password'];
+				exit;
+				}else{
+				echo "no";
+				exit;
+				}
+				//return $this->redirect(array('action' => 'login','?true'));
+			}else	{
+				return $this->redirect(array('action' => 'login','?false'));	
+			}	
+		}
+	}
+	
+	/**
+     * logout method
+     *
+     * @param string|null $id User id.
+     * @return void Redirects to index.
+     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     */
+	 
+	public function logout() {
+	
+		$this->Flash->success('Good-Bye');
+		
+		$this->request->session()->delete('id');
+		$this->request->session()->delete('name');
+		$this->request->session()->delete('username');
+		$this->request->session()->delete('logo');
+		$this->request->session()->delete('type');
+		
+		return $this->redirect($this->Auth->logout());
+	}
+	
+	/* crop and save image */
+	
+	function image_crop(){
+			$imgUrl = $_POST['imgUrl'];
+			$imgInitW = $_POST['imgInitW'];
+			$imgInitH = $_POST['imgInitH'];
+			$imgW = $_POST['imgW'];
+			$imgH = $_POST['imgH'];
+			$imgY1 = $_POST['imgY1'];
+			$imgX1 = $_POST['imgX1'];
+			$cropW = $_POST['cropW'];
+			$cropH = $_POST['cropH'];
+
+			$jpeg_quality = 100;
+			$rand = rand();
+			$output_filename = "../webroot/img/uploads/croppedImg_".$rand;
+			$oname = "img/uploads/croppedImg_".$rand;
+			$path = BASE_PATH;
+
+			$what = getimagesize($imgUrl);
+			switch(strtolower($what['mime']))
+			{
+				case 'image/png':
+					$img_r = imagecreatefrompng($imgUrl);
+					$source_image = imagecreatefrompng($imgUrl);
+					$type = '.png';
+					break;
+				case 'image/jpeg':
+					$img_r = imagecreatefromjpeg($imgUrl);
+					$source_image = imagecreatefromjpeg($imgUrl);
+					$type = '.jpeg';
+					break;
+				case 'image/gif':
+					$img_r = imagecreatefromgif($imgUrl);
+					$source_image = imagecreatefromgif($imgUrl);
+					$type = '.gif';
+					break;
+				default: die('image type not supported');
+			}
+				
+			$resizedImage = imagecreatetruecolor($imgW, $imgH);
+			imagecopyresampled($resizedImage, $source_image, 0, 0, 0, 0, $imgW, 
+						$imgH, $imgInitW, $imgInitH);	
+			
+			
+			$dest_image = imagecreatetruecolor($cropW, $cropH);
+			imagecopyresampled($dest_image, $resizedImage, 0, 0, $imgX1, $imgY1, $cropW, 
+						$cropH, $cropW, $cropH);	
+
+
+			imagejpeg($dest_image, $output_filename.$type, $jpeg_quality);
+			
+			$response = array(
+					"status" => 'success',
+					"url" => $oname.$type, 
+					"base" => $path 
+				  );
+			 print json_encode($response);
+			 exit;
+	}
+	
+	
+	function save_image(){
+		$imagePath = "../webroot/img/uploads/";
+		$Path= BASE_PATH.'/img/uploads/';
+		$allowedExts = array("gif", "jpeg", "jpg", "png", "GIF", "JPEG", "JPG", "PNG");
+		$temp = explode(".", $_FILES["img"]["name"]);
+		$extension = end($temp);
+
+		if ( in_array($extension, $allowedExts))
+		  {
+		  if ($_FILES["img"]["error"] > 0)
+			{
+				 $response = array(
+					"status" => 'error',
+					"message" => 'ERROR Return Code: '. $_FILES["img"]["error"],
+				);
+				echo "Return Code: " . $_FILES["img"]["error"] . "<br>";
+			}
+		  else
+			{
+				
+			  $filename = $_FILES["img"]["tmp_name"];
+			  list($width, $height) = getimagesize( $filename );
+
+			  move_uploaded_file($filename,  $imagePath . $_FILES["img"]["name"]);
+
+			  $response = array(
+				"status" => 'success',
+				"url" => $Path.$_FILES["img"]["name"],
+				"width" => $width,
+				"height" => $height
+			  );
+			  
+			}
+		  }
+		else
+		  {
+		   $response = array(
+				"status" => 'error',
+				"message" => 'something went wrong',
+			);
+		  }
+		  
+		  print json_encode($response);
+		exit;
+	}
+}
